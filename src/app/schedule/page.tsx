@@ -16,9 +16,9 @@ import {
   MovieTitle,
   Separator,
   MovieSynopsis,
-  ModalOverlay,
-  ModalContent,
-  CloseButton,
+  //ModalOverlay,
+  //ModalContent,
+  //CloseButton,
   MovieTimesContainer,
   MoviewTimewrapper,
 } from "./styles";
@@ -137,7 +137,7 @@ export default function SchedulePage() {
   const [selectedDay, setSelectedDay] = useState("Jueves");
   const [hoveredMovie, setHoveredMovie] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
-  const [modalMovie, setModalMovie] = useState(null);
+  const [setModalMovie] = useState(null);
 
   useEffect(() => {
     setIsMobile(window.innerWidth < 768);
