@@ -16,9 +16,9 @@ import {
   MovieTitle,
   Separator,
   MovieSynopsis,
-  //ModalOverlay,
-  //ModalContent,
-  //CloseButton,
+  ModalOverlay,
+  ModalContent,
+  CloseButton,
   MovieTimesContainer,
   MoviewTimewrapper,
 } from "./styles";
@@ -148,7 +148,35 @@ export default function SchedulePage() {
   const [isMobile, setIsMobile] = useState(false);
   const [modalMovie, setModalMovie] = useState<MovieType | null>(null);
 
-
+  {modalMovie && (
+    <ModalOverlay>
+      <ModalContent>
+        <CloseButton onClick={() => setModalMovie(null)}>X</CloseButton>
+        <MovieTitle>{modalMovie.title}</MovieTitle>
+        <Image
+          src={modalMovie.image}
+          alt={modalMovie.title}
+          width={400}
+          height={600}
+        />
+        <MovieDetails>
+          <p>
+            Director: <strong>{modalMovie.director}</strong>
+          </p>
+          <p>
+            Año: <strong>{modalMovie.year}</strong>
+          </p>
+          <p>
+            Idioma: <strong>{modalMovie.language}</strong>
+          </p>
+          <p>
+            Duración: <strong>{modalMovie.duration}</strong>
+          </p>
+        </MovieDetails>
+        <MovieSynopsis>{modalMovie.synopsis}</MovieSynopsis>
+      </ModalContent>
+    </ModalOverlay>
+  )}
   useEffect(() => {
     setIsMobile(window.innerWidth < 768);
     window.addEventListener("resize", () =>
