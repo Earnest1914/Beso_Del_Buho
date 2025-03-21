@@ -132,12 +132,22 @@ const schedule = {
     },
   ],
 };
-
+type MovieType = {
+  title: string;
+  times: string[];
+  duration: string;
+  image: string;
+  director: string;
+  year: number;
+  language: string;
+  synopsis: string;
+};
 export default function SchedulePage() {
   const [selectedDay, setSelectedDay] = useState("Jueves");
-  const [hoveredMovie, setHoveredMovie] = useState(null);
+  const [hoveredMovie, setHoveredMovie] = useState<MovieType | null>(null);
   const [isMobile, setIsMobile] = useState(false);
-  const [setModalMovie] = useState(null);
+  const [modalMovie, setModalMovie] = useState<MovieType | null>(null);
+
 
   useEffect(() => {
     setIsMobile(window.innerWidth < 768);
@@ -172,11 +182,11 @@ export default function SchedulePage() {
         </Tabs>
         <ScheduleContainer>
           <ScheduleCarousel>
-            {schedule[selectedDay].map((movie) => (
+          {schedule[selectedDay as keyof typeof schedule].map((movie) => (
               <MovieCardWrapper
                 key={movie.title}
                 onClick={() =>
-                  isMobile ? setModalMovie(movie) : setHoveredMovie(movie)
+                  isMobile ? setModalMovie(movie as MovieType) : setHoveredMovie(movie)
                 }
                 onMouseEnter={() => !isMobile && setHoveredMovie(movie)}
                 onMouseLeave={() => !isMobile && setHoveredMovie(null)}
