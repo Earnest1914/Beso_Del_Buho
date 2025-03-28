@@ -145,39 +145,13 @@ export default function SchedulePage() {
   const [selectedDay, setSelectedDay] = useState("Jueves");
   const [hoveredMovie, setHoveredMovie] = useState<MovieType | null>(null);
   const [isMobile, setIsMobile] = useState(false);
-  const [selectedMovie, setSelectedMovie] = useState<MovieType | null>(null);
-  const [timeViewActive, setTimeViewActive] = useState(false);
-  const [selectedSeats, setSelectedSeats] = useState<number[]>([]);
 
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-
-    window.addEventListener("resize", handleResize);
-    handleResize();
-
-    return () => window.removeEventListener("resize", handleResize);
+    setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", () =>
+      setIsMobile(window.innerWidth < 768)
+    );
   }, []);
-
-  const handleTimeClick = () => {
-    setTimeViewActive(true);
-  };
-
-  const handleBackClick = () => {
-    setTimeViewActive(false);
-  };
-
-  const toggleSeatSelection = (index: number) => {
-    setSelectedSeats((prev) => {
-      const selectedIndex = prev.indexOf(index);
-      if (selectedIndex > -1) {
-        return prev.filter((item) => item !== index); 
-      } else {
-        return [...prev, index];
-      }
-    });
-  };
 
   return (
     <>
@@ -192,209 +166,63 @@ export default function SchedulePage() {
           width={700}
           height={120}
         />
-        {timeViewActive ? (
-          <>
-            <button
-              onClick={handleBackClick}
-              style={{
-                marginTop: "20px",
-                padding: "8px 16px",
-                fontSize: "16px",
-                cursor: "pointer",
-              }}
+        <Tabs>
+          {Object.keys(schedule).map((day) => (
+            <Tab
+              key={day}
+              active={selectedDay === day}
+              onClick={() => setSelectedDay(day)}
             >
-              Regresar
-            </button>
-            <div
-              style={{
-                color: "white",
-                fontSize: "24px",
-                textAlign: "center",
-                marginTop: "20px",
-              }}
-            >
-              Selecciona tus asientos
-            </div>
-            <div
-              style={{
-                textAlign: "center",
-                color: "white",
-                fontSize: "16px",
-                marginTop: "20px",
-                marginBottom: "10px",
-              }}
-            >
-              Pantalla
-            </div>
-            <hr style={{ border: "1px solid white", width: "50%" }} />
-            {}
-            {Array.from({ length: 12 }).map((_, index) => {
-              const row = Math.floor(index / 4);
-              const position = index % 4;
-              const top = 300 + row * 100;
-              const left = 34 + position * 9;
-              const isSelected = selectedSeats.includes(index);
-              return (
-                <div
-                  key={index}
-                  onClick={() => toggleSeatSelection(index)}
-                  style={{
-                    position: "absolute",
-                    top: `${top}px`,
-                    left: `${left}%`,
-                    width: "50px",
-                    height: "50px",
-                    backgroundColor: isSelected ? "white" : "gray",
-                    borderRadius: "50%",
-                    cursor: "pointer",
-                    transition: "background-color 0.3s",
-                  }}
-                />
-              );
-            })}
-            {}
-            <div
-              style={{
-                position: "absolute",
-                top: "620px",
-                left: "50%",
-                transform: "translateX(-50%)",
-                color: "white",
-                fontSize: "20px",
-              }}
-            >
-              Has seleccionado {selectedSeats.length} asientos
-            </div>
-            {}
-            <button
-              onClick={() => console.log("Reservar asientos")}
-              style={{
-                position: "absolute",
-                top: "660px",
-                left: "50%",
-                transform: "translateX(-50%)",
-                marginTop: "20px",
-                padding: "8px 16px",
-                fontSize: "16px",
-                cursor: "pointer",
-                color: "white",
-                backgroundColor: "black",
-                border: "none",
-              }}
-            >
-              Reservar
-            </button>
-          </>
-        ) : (
-          <>
-            <Tabs>
-              {Object.keys(schedule).map((day) => (
-                <Tab
-                  key={day}
-                  active={selectedDay === day}
-                  onClick={() => {
-                    setSelectedDay(day);
-                    setSelectedMovie(null);
-                    setTimeViewActive(false);
-                  }}
-                >
-                  {day}
-                </Tab>
-              ))}
-            </Tabs>
-            {selectedMovie ? (
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "start",
-                }}
+              {day}
+            </Tab>
+          ))}
+        </Tabs>
+        <ScheduleContainer>
+          <ScheduleCarousel>
+            {schedule[selectedDay as keyof typeof schedule].map((movie) => (
+              <MovieCardWrapper
+                key={movie.title}
+                onClick={() =>
+                  isMobile ? setHoveredMovie(movie) : setHoveredMovie(movie)
+                }
+                onMouseEnter={() => !isMobile && setHoveredMovie(movie)}
+                onMouseLeave={() => !isMobile && setHoveredMovie(null)}
               >
-                <MovieCardWrapper onClick={() => setSelectedMovie(null)}>
-                  <Image
-                    src={selectedMovie.image}
-                    alt={selectedMovie.title}
-                    width={200}
-                    height={300}
-                  />
-                  <MovieTitle>{selectedMovie.title}</MovieTitle>
-                </MovieCardWrapper>
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    marginLeft: "20px",
-                  }}
-                >
-                  <MovieTimesContainer>
-                    {selectedMovie.times.map((time) => (
-                      <MoviewTimewrapper
-                        key={time}
-                        onClick={handleTimeClick}
-                      >
-                        {time}
-                      </MoviewTimewrapper>
-                    ))}
-                  </MovieTimesContainer>
-                  <MovieInfo>
-                    <MovieDetails>
-                      <p>
-                        Director: <strong>{selectedMovie.director}</strong>
-                      </p>
-                      <p>
-                        Año: <strong>{selectedMovie.year}</strong>
-                      </p>
-                      <p>
-                        Idioma: <strong>{selectedMovie.language}</strong>
-                      </p>
-                      <p>
-                        Duración: <strong>{selectedMovie.duration}</strong>
-                      </p>
-                    </MovieDetails>
-                    <MovieSynopsis>{selectedMovie.synopsis}</MovieSynopsis>
-                  </MovieInfo>
-                  <button
-                    onClick={() => setSelectedMovie(null)}
-                    style={{
-                      marginTop: "10px",
-                      padding: "8px 16px",
-                      fontSize: "16px",
-                      cursor: "pointer",
-                    }}
-                  >
-                    Regresar
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <ScheduleCarousel>
-                {schedule[selectedDay as keyof typeof schedule].map((movie) => (
-                  <MovieCardWrapper
-                    key={movie.title}
-                    onClick={() => setSelectedMovie(movie)}
-                  >
-                    <Image
-                      src={movie.image}
-                      alt={movie.title}
-                      width={200}
-                      height={300}
-                    />
-                    <MovieTitle>{movie.title}</MovieTitle>
-                    <MovieTimesContainer>
-                      {movie.times.map((time) => (
-                        <MoviewTimewrapper
-                          key={time}
-                          onClick={handleTimeClick}
-                        >
-                          {time}
-                        </MoviewTimewrapper>
-                      ))}
-                    </MovieTimesContainer>
-                  </MovieCardWrapper>
-                ))}
-              </ScheduleCarousel>
-            )}
-          </>
+                <Image
+                  src={movie.image}
+                  alt={movie.title}
+                  width={200}
+                  height={300}
+                />
+                <MovieTitle>{movie.title}</MovieTitle>
+                <MovieTimesContainer>
+                  {movie.times.map((time) => (
+                    <MoviewTimewrapper key={time}>{time}</MoviewTimewrapper>
+                  ))}
+                </MovieTimesContainer>
+              </MovieCardWrapper>
+            ))}
+          </ScheduleCarousel>
+        </ScheduleContainer>
+        <Separator />
+        {hoveredMovie && (
+          <MovieInfo>
+            <MovieDetails>
+              <p>
+                Director: <strong>{hoveredMovie.director}</strong>
+              </p>
+              <p>
+                Año: <strong>{hoveredMovie.year}</strong>
+              </p>
+              <p>
+                Idioma: <strong>{hoveredMovie.language}</strong>
+              </p>
+              <p>
+                Duración: <strong>{hoveredMovie.duration}</strong>
+              </p>
+            </MovieDetails>
+            <MovieSynopsis>{hoveredMovie.synopsis}</MovieSynopsis>
+          </MovieInfo>
         )}
       </Container>
     </>
