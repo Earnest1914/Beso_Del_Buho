@@ -202,17 +202,3 @@ export const MoviewTimewrapper = styled.div`
   color: white;
   background-color: gray;
 `;
-
-const seatStyle = {
-  width: '50px',
-  height: '50px',
-  backgroundColor: 'gray',
-  borderRadius: '50%',
-  cursor: 'pointer',
-  transition: 'background-color 0.3s' 
-};
-
-
-const hoverStyle = {
-  backgroundColor: '#bbb' 
-};
