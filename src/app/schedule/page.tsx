@@ -7,14 +7,12 @@ import {
   Container,
   Tabs,
   Tab,
-  //ScheduleContainer,
   ScheduleCarousel,
   MovieInfo,
   MovieDetails,
   MovieCardWrapper,
   GlobalStyle,
   MovieTitle,
-  //Separator,
   MovieSynopsis,
   MovieTimesContainer,
   MoviewTimewrapper,
@@ -147,6 +145,9 @@ export default function SchedulePage() {
   const [timeViewActive, setTimeViewActive] = useState(false);
   const [selectedSeats, setSelectedSeats] = useState<number[]>([]);
 
+  const seatPrice = 60;
+  const maxSeats = 12;
+  const isSoldOut = selectedSeats.length >= maxSeats;
 
   const handleTimeClick = () => {
     setTimeViewActive(true);
@@ -168,6 +169,28 @@ export default function SchedulePage() {
     });
   };
 
+  const handleReserveClick = () => {
+    const total = selectedSeats.length * seatPrice;
+    const confirm = window.confirm(`Total a pagar: $${total} MXN. ¿Confirmas tu reservación?`);
+    if (confirm) {
+      alert("¡Reservación realizada con éxito!");
+      setTimeViewActive(false);
+      setSelectedSeats([]);
+    }
+  };
+
+  const handleWaitlist = () => {
+    const name = prompt("Ingresa tu nombre:");
+    const email = prompt("Ingresa tu correo electrónico:");
+    if (name && email) {
+      alert(`Gracias, ${name}. Te hemos añadido a la lista de espera.`);
+      setTimeViewActive(false);
+      setSelectedSeats([]);
+    } else {
+      alert("Debes ingresar ambos datos para unirte a la lista.");
+    }
+  };
+
   return (
     <>
       <GlobalStyle />
@@ -175,48 +198,20 @@ export default function SchedulePage() {
         <Head>
           <title>Cartelera</title>
         </Head>
-        <Image
-          src={"/beso_del_buho_banner.png"}
-          alt={"Beso del Buho"}
-          width={700}
-          height={120}
-        />
+        <Image src={"/beso_del_buho_banner.png"} alt={"Beso del Buho"} width={700} height={120} />
         {timeViewActive ? (
           <>
-            <button
-              onClick={handleBackClick}
-              style={{
-                marginTop: "20px",
-                padding: "8px 16px",
-                fontSize: "16px",
-                cursor: "pointer",
-              }}
-            >
+            <button onClick={handleBackClick} style={{ marginTop: "20px", padding: "8px 16px", fontSize: "16px", cursor: "pointer" }}>
               Regresar
             </button>
-            <div
-              style={{
-                color: "white",
-                fontSize: "24px",
-                textAlign: "center",
-                marginTop: "20px",
-              }}
-            >
+            <div style={{ color: "white", fontSize: "24px", textAlign: "center", marginTop: "20px" }}>
               Selecciona tus asientos
             </div>
-            <div
-              style={{
-                textAlign: "center",
-                color: "white",
-                fontSize: "16px",
-                marginTop: "20px",
-                marginBottom: "10px",
-              }}
-            >
+            <div style={{ textAlign: "center", color: "white", fontSize: "16px", marginTop: "20px", marginBottom: "10px" }}>
               Pantalla
             </div>
             <hr style={{ border: "1px solid white", width: "50%" }} />
-            {Array.from({ length: 12 }).map((_, index) => {
+            {Array.from({ length: maxSeats }).map((_, index) => {
               const row = Math.floor(index / 4);
               const position = index % 4;
               const top = 300 + row * 100;
@@ -250,26 +245,47 @@ export default function SchedulePage() {
                 fontSize: "20px",
               }}
             >
-              Has seleccionado {selectedSeats.length} asientos
+              Has seleccionado {selectedSeats.length} asientos · Total: ${selectedSeats.length * seatPrice} MXN
             </div>
-            <button
-              onClick={() => console.log("Reservar asientos")}
-              style={{
-                position: "absolute",
-                top: "660px",
-                left: "50%",
-                transform: "translateX(-50%)",
-                marginTop: "20px",
-                padding: "8px 16px",
-                fontSize: "16px",
-                cursor: "pointer",
-                color: "white",
-                backgroundColor: "black",
-                border: "none",
-              }}
-            >
-              Reservar
-            </button>
+            {isSoldOut ? (
+              <button
+                onClick={handleWaitlist}
+                style={{
+                  position: "absolute",
+                  top: "680px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  marginTop: "20px",
+                  padding: "8px 16px",
+                  fontSize: "16px",
+                  cursor: "pointer",
+                  color: "white",
+                  backgroundColor: "#a00",
+                  border: "none",
+                }}
+              >
+                Unirse a la lista de espera
+              </button>
+            ) : (
+              <button
+                onClick={handleReserveClick}
+                style={{
+                  position: "absolute",
+                  top: "680px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  marginTop: "20px",
+                  padding: "8px 16px",
+                  fontSize: "16px",
+                  cursor: "pointer",
+                  color: "white",
+                  backgroundColor: "black",
+                  border: "none",
+                }}
+              >
+                Reservar
+              </button>
+            )}
           </>
         ) : (
           <>
@@ -289,65 +305,29 @@ export default function SchedulePage() {
               ))}
             </Tabs>
             {selectedMovie ? (
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "start",
-                }}
-              >
+              <div style={{ display: "flex", justifyContent: "center", alignItems: "start" }}>
                 <MovieCardWrapper onClick={() => setSelectedMovie(null)}>
-                  <Image
-                    src={selectedMovie.image}
-                    alt={selectedMovie.title}
-                    width={200}
-                    height={300}
-                  />
+                  <Image src={selectedMovie.image} alt={selectedMovie.title} width={200} height={300} />
                   <MovieTitle>{selectedMovie.title}</MovieTitle>
                 </MovieCardWrapper>
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    marginLeft: "20px",
-                  }}
-                >
+                <div style={{ display: "flex", flexDirection: "column", marginLeft: "20px" }}>
                   <MovieTimesContainer>
                     {selectedMovie.times.map((time) => (
-                      <MoviewTimewrapper
-                        key={time}
-                        onClick={handleTimeClick}
-                      >
+                      <MoviewTimewrapper key={time} onClick={handleTimeClick}>
                         {time}
                       </MoviewTimewrapper>
                     ))}
                   </MovieTimesContainer>
                   <MovieInfo>
                     <MovieDetails>
-                      <p>
-                        Director: <strong>{selectedMovie.director}</strong>
-                      </p>
-                      <p>
-                        Año: <strong>{selectedMovie.year}</strong>
-                      </p>
-                      <p>
-                        Idioma: <strong>{selectedMovie.language}</strong>
-                      </p>
-                      <p>
-                        Duración: <strong>{selectedMovie.duration}</strong>
-                      </p>
+                      <p>Director: <strong>{selectedMovie.director}</strong></p>
+                      <p>Año: <strong>{selectedMovie.year}</strong></p>
+                      <p>Idioma: <strong>{selectedMovie.language}</strong></p>
+                      <p>Duración: <strong>{selectedMovie.duration}</strong></p>
                     </MovieDetails>
                     <MovieSynopsis>{selectedMovie.synopsis}</MovieSynopsis>
                   </MovieInfo>
-                  <button
-                    onClick={() => setSelectedMovie(null)}
-                    style={{
-                      marginTop: "10px",
-                      padding: "8px 16px",
-                      fontSize: "16px",
-                      cursor: "pointer",
-                    }}
-                  >
+                  <button onClick={() => setSelectedMovie(null)} style={{ marginTop: "10px", padding: "8px 16px", fontSize: "16px", cursor: "pointer" }}>
                     Regresar
                   </button>
                 </div>
@@ -355,23 +335,12 @@ export default function SchedulePage() {
             ) : (
               <ScheduleCarousel>
                 {schedule[selectedDay as keyof typeof schedule].map((movie) => (
-                  <MovieCardWrapper
-                    key={movie.title}
-                    onClick={() => setSelectedMovie(movie)}
-                  >
-                    <Image
-                      src={movie.image}
-                      alt={movie.title}
-                      width={200}
-                      height={300}
-                    />
+                  <MovieCardWrapper key={movie.title} onClick={() => setSelectedMovie(movie)}>
+                    <Image src={movie.image} alt={movie.title} width={200} height={300} />
                     <MovieTitle>{movie.title}</MovieTitle>
                     <MovieTimesContainer>
                       {movie.times.map((time) => (
-                        <MoviewTimewrapper
-                          key={time}
-                          onClick={handleTimeClick}
-                        >
+                        <MoviewTimewrapper key={time} onClick={handleTimeClick}>
                           {time}
                         </MoviewTimewrapper>
                       ))}
